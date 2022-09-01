@@ -1,0 +1,156 @@
+﻿@model EmpMvcDemo.Models.Employee
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+
+@using (Html.BeginForm("Edit", "Employee", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Employee</h4>
+        <hr />
+        <input type="hidden" id="EId" name="EId" value="@Model.EId">
+        <div class="form-group">
+            <label class="control-label col-md-2">EmployeeCodee</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="EmployeeCode" name="EmployeeCode" readonly="readonly" placeholder="Enter the field" value="@Model.EmployeeCode" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">FirstName<span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="FirstName" name="FirstName" onkeypress="return alphaOnly(event)" required placeholder="Enter the field" value="@Model.FirstName" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">MiddleName <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="MiddleName" name="MiddleName" onkeypress="return alphaOnly(event)" required placeholder="Enter the field" value="@Model.MiddleName" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">LastName <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="LastName" name="LastName" onkeypress="return alphaOnly(event)" required placeholder="Enter the field" value="@Model.LastName" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">DOB <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.DOB, "{0:yyyy-MM-dd}", new { @class = "form-control", onchange = "GetAge(event)", type = "date" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Age</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="Age" name="Age" readonly="readonly" value="@Model.Age" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Gender</label>
+            <div class="col-md-10">
+                <select class="form-control dropdown" id="Gender" name="Gender" required>
+                    <option value="0">Select Gender</option>
+                    @if (Model.Gender == "Male")
+                    {
+                        <option value="Male" selected>Male</option>
+                        <option value="Female">Female</option>
+                    }
+                    else
+                    {
+                        <option value="Male">Male</option>
+                        <option value="Female" selected>Female</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">ContactNo <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="ContactNo" name="ContactNo" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" maxlength="10" required placeholder="Enter the field" value="@Model.ContactNo" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Email <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="email" class="form-control" id="Email" name="Email" required placeholder="Enter the field" value="@Model.Email" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-2">Employee Image</label>
+            <div class="col-md-10">
+
+                @Html.TextBoxFor(m => m.Photo, new { @class="form-control",type = "file" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Update" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@Scripts.Render("~/bundles/jqueryval")
+@section Scripts {
+    <script>
+
+        var _validFileExtensions = [".jpg", ".png"];
+        function checkFile() {
+            var arrInputs = document.getElementsByTagName("input");
+            for (var i = 0; i < arrInputs.length; i++) {
+                var oInput = arrInputs[i];
+                if (oInput.type == "file") {
+                    var sFileName = oInput.value;
+                    if (sFileName.length < 2000000) {
+                        var blnValid = false;
+                        for (var j = 0; j < _validFileExtensions.length; j++) {
+                            var sCurExtension = _validFileExtensions[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                blnValid = true;
+                                break;
+                            }
+                        }
+
+                        if (!blnValid) {
+                            alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", Please upload file less than 2MB."));
+                            $("#Photo").val("");
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+
+        function alphaOnly(event) {
+            var value = String.fromCharCode(event.which);
+            var pattern = new RegExp(/[a-zA-Z]/i);
+            return pattern.test(value);
+        }
+        function GetAge(event) {
+            var Bdate = $("#DOB").val();
+            var Bday = +new Date(Bdate);
+            var age = (Date.now() - Bday) / (31557600000);
+            $("#Age").val(Math.round(age).toFixed())
+        }
+
+    </script>
+}

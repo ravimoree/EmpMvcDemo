@@ -1,0 +1,152 @@
+﻿@model EmpMvcDemo.Models.Employee
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+
+@using (Html.BeginForm("Create", "Employee", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Employee</h4>
+        <hr />
+        <div class="form-group">
+            <label class="control-label col-md-2">EmployeeCodee</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="EmployeeCode" name="EmployeeCode" readonly="readonly" placeholder="Enter the field" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">FirstName<span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="FirstName" name="FirstName" onkeypress="return alphaOnly(event)" required placeholder="Enter the field" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">MiddleName <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="MiddleName" name="MiddleName" onkeypress="return alphaOnly(event)" required placeholder="Enter the field" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">LastName <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="LastName" name="LastName" onkeypress="return alphaOnly(event)" required placeholder="Enter the field" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">DOB <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="date" id="DOB" name="DOB" class="form-control date-input" onchange="GetAge(event)" />
+
+                <span id="lblError" style="color:Red"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Age</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="Age" name="Age" readonly="readonly" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Gender</label>
+            <div class="col-md-10">
+                <select class="form-control dropdown" id="Gender" name="Gender" required>
+                    <option value="0">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">ContactNo <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="ContactNo" name="ContactNo" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" maxlength="10" required placeholder="Enter the field" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Email <span style="color:red">*</span></label>
+            <div class="col-md-10">
+                <input type="email" class="form-control" id="Email" name="Email" required placeholder="Enter the field" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-2">Employee Image</label>
+            <div class="col-md-10">
+                <input type="file" class="form-control" id="Photo" name="Photo" required onchange="checkFile()" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+@Scripts.Render("~/bundles/jqueryval")
+    <script>
+
+        const uniqueId = (length = 12) => {
+            debugger
+            return parseInt(Math.ceil(Math.random() * Date.now()).toPrecision(length).toString().replace(".", ""))
+        }
+
+
+        $("#EmployeeCode").val(uniqueId())
+
+        var _validFileExtensions = [".jpg", ".png"];
+        function checkFile() {
+            var arrInputs = document.getElementsByTagName("input");
+            for (var i = 0; i < arrInputs.length; i++) {
+                var oInput = arrInputs[i];
+                if (oInput.type == "file") {
+                    var sFileName = oInput.value;
+                    if (sFileName.length < 2000000) {
+                        var blnValid = false;
+                        for (var j = 0; j < _validFileExtensions.length; j++) {
+                            var sCurExtension = _validFileExtensions[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                blnValid = true;
+                                break;
+                            }
+                        }
+
+                        if (!blnValid) {
+                            alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", Please upload file less than 2MB."));
+                            $("#Photo").val("");
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        function alphaOnly(event) {
+            var value = String.fromCharCode(event.which);
+            var pattern = new RegExp(/[a-zA-Z]/i);
+            return pattern.test(value);
+        }
+        function GetAge(event) {
+            var Bdate = $("#DOB").val();
+            var Bday = +new Date(Bdate);
+            var age = (Date.now() - Bday) / (31557600000);
+            $("#Age").val(Math.round(age).toFixed())
+        }
+
+    </script>
